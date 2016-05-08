@@ -21,7 +21,7 @@ def send_mail():
     message["From"] = Header(
         "Guarder<de-email-1@jetech-design.com>", "utf-8")
     message["To"] = Header("; ".join(receiver), "utf-8")
-    subject = "%s: 亚马逊产品Buybox 跟买" % now
+    subject = "%s: 亚马逊|Buybox|跟买|" % now
     message["Subject"] = Header(subject, "utf-8")
 
     try:
