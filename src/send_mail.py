@@ -6,7 +6,7 @@ from email.mime.text import MIMEText
 from email.header import Header
 
 
-def send_mail():
+def send_mail(html_file=None):
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
     mail_host = "smtp.qiye.163.com"
@@ -29,6 +29,7 @@ def send_mail():
         smtpobj.connect(mail_host, 25)
         smtpobj.login(mail_user, mail_pass)
         smtpobj.sendmail(sender, receiver, message.as_string())
-        print 'Send Mail Success: %s' %now
+        print 'Send Mail Success: %s' % now
     except smtplib.SMTPException:
-        print 'Send Failed: %s' %now
+        print 'Send Failed: %s' % now
+        

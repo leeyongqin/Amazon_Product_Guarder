@@ -12,6 +12,7 @@ class Product(object):
         self.title = None
         self.buy_box = None
         self.brand = None
+        self.price = None
         self.availability = None
         self.exist_new_offer = False
         self.exist_negative_review = None
@@ -20,11 +21,7 @@ class Product(object):
         return 'SKU: %s' % self.sku
 
 
-def sku_asin_url_processor(file=None):
-    pass
-
-
-def parse_data(raw_info_list):
+def parse_data(raw_info_list=None):
     # Try to get sku, asin, url_index, url_offer
     product = Product()
     try:
@@ -97,35 +94,35 @@ def parse_data(raw_info_list):
     try:
         five_star = html_index.xpath(
             "//*/tr[@class='a-histogram-row'][1]/td[3]/a | //*/div[@class='fl histoRowfive clearboth'][1]/a/div[3]")[
-            0].text
+            0].text.replace('%', '')
     except IndexError:
         five_star = "0"
         pass
     try:
         four_star = html_index.xpath(
             "//*/tr[@class='a-histogram-row'][2]/td[3]/a | //*/div[@class='fl histoRowfour clearboth'][1]/a/div[3]")[
-            0].text
+            0].text.replace('%', '')
     except IndexError:
         four_star = "0"
         pass
     try:
         three_star = html_index.xpath(
             "//*/tr[@class='a-histogram-row'][3]/td[3]/a | //*/div[@class='fl histoRowthree clearboth'][1]/a/div[3]")[
-            0].text
+            0].text.replace('%', '')
     except IndexError:
         three_star = "0"
         pass
     try:
         two_star = html_index.xpath(
             "//*/tr[@class='a-histogram-row'][4]/td[3]/a | //*/div[@class='fl histoRowtwo clearboth'][1]/a/div[3]")[
-            0].text
+            0].text.replace('%', '')
     except IndexError:
         two_star = "0"
         pass
     try:
         one_star = html_index.xpath(
             "//*/tr[@class='a-histogram-row'][5]/td[3]/a | //*/div[@class='fl histoRowone clearboth'][1]/a/div[3]")[
-            0].text
+            0].text.replace('%', '')
     except IndexError:
         one_star = "0"
         pass
@@ -144,30 +141,34 @@ def parse_data(raw_info_list):
     # process html data got from website
     # process offer list
     try:
-        offer_quality = html_offer.xpath("//*[@class='a-row a-spacing-mini olpOffer']/div[2]/div/span/text()")
+        offer_stand = html_offer.xpath("//*[@class='a-row a-spacing-mini olpOffer']/div[2]/div/span/text()")
         offer_name = html_offer.xpath("//*[@class='a-row a-spacing-mini olpOffer']/div[3]/h3/span/a/text()")
     except Exception:
         print "Get Offer List Failed"
 
     new_offer = list()
     own_account = list()
-    for i in offer_quality:
-        quality = i.replace('\n', '').replace(' ', '')
-        if quality in  ['Neu']:
-            print new_offer.append(quality),
+    new_offer_num = 0
+    own_account_num = 0
+    for i in offer_stand:
+        stand = i.replace('\n', '').replace(' ', '')
+        if stand in ['Neu']:
+            new_offer_num += 1
 
     for i in offer_name:
         offer = i.replace(' ', '')
-        if offer in ['JEDirect']:
-            own_account.append(offer)
+        if offer in ['JEDirectDE']:
+            own_account_num += 1
 
-    if len(new_offer) == len(own_account):
-        product.exist_new_offer = False
+    if new_offer_num == own_account_num:
+        product.exist_new_offer = 'No other Offer'
     else:
-        product.exist_new_offer = True
+        product.exist_new_offer = 'Exist other Offer'
 
-    print (product.sku, product.asin, product.title, product.brand, product.price, product.buy_box, product.availability,\
-        product.exist_negative_review, product.exist_new_offer)
+    print (product.sku, product.asin, product.title, product.brand, product.price,
+           product.buy_box, product.availability,
+           product.exist_negative_review, product.exist_new_offer)
+
     return product
 
 

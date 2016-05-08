@@ -25,17 +25,52 @@ def info_process(country=None):
         print "No such file or directory: 'sku.xls'"
         exit()
     raw_info_list = list()
-    single_sku_info = list()
     for i in xrange(table.nrows):
         sku, asin = table.row_values(i)[0], table.row_values(i)[1]
+        # Europe
         if country == 'de':
-            url_index = ''
-            url_offer = ''
+            url_index = 'http://www.amazon.de/gp/product/%s/' % asin
+            url_offer = 'http://www.amazon.de/gp/offer-listing/%s/' % asin
+
+        elif country == 'fr':
+            url_index = 'http://www.amazon.fr/gp/product/%s/' % asin
+            url_offer = 'http://www.amazon.fr/gp/offer-listing/%s/' % asin
+
+        elif country == 'uk':
+            url_index = 'http://www.amazon.co.uk/gp/product/%s/' % asin
+            url_offer = 'http://www.amazon.co.uk/gp/offer-listing/%s/' % asin
+
+        elif country == 'es':
+            url_index = 'http://www.amazon.es/gp/product/%s/' % asin
+            url_offer = 'http://www.amazon.es/gp/offer-listing/%s/' % asin
+
+        elif country == 'it':
+            url_index = 'http://www.amazon.it/gp/product/%s/' % asin
+            url_offer = 'http://www.amazon.it/gp/offer-listing/%s/' % asin
+
+        # North America
         elif country == 'us':
-            url_index = ''
-            url_offer = ''
+            url_index = 'http://www.amazon.com/gp/product/%s/' % asin
+            url_offer = 'http://www.amazon.com/gp/offer-listing/%s/' % asin
+
+        elif country == 'ca':
+            url_index = 'http://www.amazon.ca/gp/product/%s/' % asin
+            url_offer = 'http://www.amazon.ca/gp/offer-listing/%s/' % asin
+
+        # Asia
+        elif country == 'jp':
+            url_index = 'http://www.amazon.co.jp/gp/product/%s/' % asin
+            url_offer = 'http://www.amazon.co.jp/gp/offer-listing/%s/' % asin
+
+        elif country == 'cn':
+            url_index = 'http://www.amazon.cn/gp/product/%s/' % asin
+            url_offer = 'http://www.amazon.cn/gp/offer-listing/%s/' % asin
+        else:
+            url_index = None
+            url_offer = None
+
         single_sku_info = [sku, asin, url_index, url_offer]
-        raw_info_list.append(single_sku_info)
+        if sku != '' or asin != '':
+            raw_info_list.append(single_sku_info)
     return raw_info_list
-info_process()
 
