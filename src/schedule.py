@@ -8,15 +8,27 @@ import threading
 import Queue
 import time
 
-info_uk = info_process('uk')
-threading_list = []
-for item in info_uk:
-    thread_name = 'thread_uk_%s' % item[1]
-    thread_name = threading.Thread(target=parse_data, args=(item, ))
-    thread_name.start()
-    thread_name.join()
-for i in range(uk_Queue.qsize()):
-    print uk_Queue.get()
 
+def multi_threading():
+    threading_list = []
+    for country in ['de', 'uk', 'fr']:
+        thread = threading.Thread(target=schedule, args=(country, ))
+        thread.start()
+        time.sleep(1)
+    thread.join()
+
+
+def schedule(country=None):
+    info = info_process(country)
+    for item in info:
+        thread_name = 'thread_uk_%s' % item[1]
+        thread_name = threading.Thread(target=parse_data, args=(item, ))
+        thread_name.start()
+        thread_name.join()
+    for i in range(uk_Queue.qsize()):
+        print uk_Queue.get()
+
+
+multi_threading()
 print 'Finished'
 

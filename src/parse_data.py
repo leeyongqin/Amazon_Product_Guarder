@@ -46,14 +46,15 @@ def parse_data(raw_info_list=None):
         product.asin = None
         url_index = None
         url_offer = None
-        print 'Raw Info Failed'
+        # print 'Raw Info Failed'
 
     # Try to get http data from website
     for i in range(3):
         while True:
             try:
                 requests_index = requests.get(url_index, header, timeout=3)
-                print requests_index.status_code
+                # print requests_index.text
+                # print requests_index.status_code
                 if requests_index.status_code == 200:
                     html_index = etree.HTML(requests_index.content)
                     product.status = 'Found'
@@ -66,7 +67,7 @@ def parse_data(raw_info_list=None):
             except:
                 html_index = None
                 html_offer = None
-                print "Get Html Data Failed, trying.."
+                # print "Get Html Data Failed, trying.."
                 continue
             break
         break
@@ -183,9 +184,9 @@ def parse_data(raw_info_list=None):
     else:
         product.exist_new_offer = 'Exist other Offer'
 
-    result = (product.sku, product.asin, product.status, product.brand, product.price,
+    result = (product.sku, product.asin, url_index, product.status, product.brand, product.price,
            product.buy_box, product.availability,
-           product.exist_negative_review, product.exist_new_offer)
+           product.exist_negative_review, product.exist_new_offer, url_offer)
 
     uk_Queue.put(result)
     return result
