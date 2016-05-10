@@ -18,11 +18,31 @@ url_offer = raw_info_list[3]
 def info_process(country=None):
     if country:
         country = country.lower()
+        if country == 'de':
+            filename = 'de_sku.xls'
+        elif country == 'uk':
+            filename = 'uk_sku.xls'
+        elif country == 'es':
+            filename = 'es_sku.xls'
+        elif country == 'fr':
+            filename = 'fr_sku.xls'
+        elif country == 'it':
+            filename = 'it_sku.xls'
+        elif country == 'us':
+            filename = 'uk_sku.xls'
+        elif country == 'ca':
+            filename = 'ca_sku.xls'
+        elif country == 'jp':
+            filename = 'jp_sku.xls'
+
+    else:
+        print 'Enter country code'
+        exit()
     try:
-        fin = xlrd.open_workbook("sku.xls")
+        fin = xlrd.open_workbook(filename)
         table = fin.sheet_by_index(0)
     except IOError:
-        print "No such file or directory: 'sku.xls'"
+        print "No such file or directory: %s" % filename
         exit()
     raw_info_list = list()
     for i in xrange(table.nrows):
@@ -50,8 +70,8 @@ def info_process(country=None):
 
         # North America
         elif country == 'us':
-            url_index = 'http://www.amazon.com/gp/product/%s/' % asin
-            url_offer = 'http://www.amazon.com/gp/offer-listing/%s/' % asin
+            url_index = 'http://www.amazon.com/dp/%s/ref=sr_1_1' % asin
+            url_offer = 'http://www.amazon.com/dp/%s/ref=sr_1_1' % asin
 
         elif country == 'ca':
             url_index = 'http://www.amazon.ca/gp/product/%s/' % asin
@@ -70,6 +90,7 @@ def info_process(country=None):
             url_offer = None
 
         single_sku_info = [sku, asin, url_index, url_offer]
+        print single_sku_info
         if sku != '' or asin != '':
             raw_info_list.append(single_sku_info)
     return raw_info_list

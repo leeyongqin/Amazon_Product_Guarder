@@ -3,10 +3,16 @@
 
 import requests
 from lxml import etree
+import Queue
+import time
+
+uk_Queue = Queue.Queue()
+de_Queue = Queue.Queue()
 
 
 class Product(object):
     def __init__(self):
+        self.status = None
         self.sku = None
         self.asin = None
         self.title = None
@@ -24,6 +30,12 @@ class Product(object):
 def parse_data(raw_info_list=None):
     # Try to get sku, asin, url_index, url_offer
     product = Product()
+    header = {
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:38.0) Gecko/20100101 Firefox/38.0 Iceweasel/38.8.0',
+        'Accept': 'text / html, application / xhtml + xml, application / xml;q = 0.9, * / *;q = 0.8',
+        'Accept - Encoding': 'gzip, deflate',
+        'Accept - Language': 'zh - CN, zh;q = 0.8, en - US;q = 0.5, en;q = 0.3',
+    }
     try:
         product.sku = raw_info_list[0]
         product.asin = raw_info_list[1]
@@ -40,15 +52,21 @@ def parse_data(raw_info_list=None):
     for i in range(3):
         while True:
             try:
-                requests_index = requests.get(url_index, timeout=3)
-                html_index = etree.HTML(requests_index.content)
-                requests_offer = requests.get(url_offer, timeout=3)
+                requests_index = requests.get(url_index, header, timeout=3)
+                print requests_index.status_code
+                if requests_index.status_code == 200:
+                    html_index = etree.HTML(requests_index.content)
+                    product.status = 'Found'
+                else:
+                    print 'Can not find this product: %s' % product.sku
+                    product.status = 'Not Found'
+                requests_offer = requests.get(url_offer, header, timeout=3)
                 html_offer =etree.HTML(requests_offer.content)
-                print u"Get Html Data from Website Succeed!"
-            except Exception:
+                # print "Get Html Data from Website Succeed!"
+            except:
                 html_index = None
                 html_offer = None
-                print u"Get Html Data Failed, trying.."
+                print "Get Html Data Failed, trying.."
                 continue
             break
         break
@@ -58,32 +76,32 @@ def parse_data(raw_info_list=None):
     try:
         product.title = html_index.xpath("//*[@id='productTitle'] | //*[@id='btAsinTitle']/span")[0].text.strip()
     except IndexError:
-        product.title = u"★★★No Title★★★"
+        product.title = "★★★No Title★★★"
         pass
 
     try:
         product.brand = html_index.xpath("//*/a[@id='brand'] | //*/div[@class='buying']/span/a")[0].text.strip()
     except IndexError:
-        product.brand = u"★★★No Brand★★★"
+        product.brand = "★★★No Brand★★★"
         pass
 
     try:
         product.price = html_index.xpath("//*[@id='priceblock_ourprice'] | //*/td/b[@class='priceLarge']")[0].text.strip()
     except IndexError:
-        product.price = u"★★★No Price★★★"
+        product.price = "★★★No Price★★★"
         pass
 
     try:
         product.availability = html_index.xpath("//*/div[@id='availability']/span | //*/span[@class='availGreen']")[
             0].text.strip()
     except IndexError:
-        product.availability = u"★★★No Availability★★★"
+        product.availability = "★★★No Availability★★★"
         pass
 
     try:
         product.buy_box = html_index.xpath("//*/div[@id='merchant-info']/a | //*/div[@class='buying']/b/a")[0].text.strip()
     except IndexError:
-        product.buy_box = u"★★★No buy_box★★★"
+        product.buy_box = "★★★No buy_box★★★"
         pass
 
     # check if negative reviews exist in left column
@@ -133,10 +151,10 @@ def parse_data(raw_info_list=None):
     negative_exist_in_left = "1" in reviews_left_list or "2" in reviews_left_list or "3" in reviews_left_list
     reviews_num_exceed_8 = (int(five_star.replace('.', '')) + int(four_star.replace('.', ''))) > 8
     if negative_exist_in_left and reviews_num_exceed_8:
-        product.exist_new_offer = True
-        print u"★★★★★WARNING: Negative review exist in left column★★★★★★"
+        product.exist_new_offer = 'Exist negative review'
+        # print u"★★★★★WARNING: Negative review exist in left column★★★★★★"
     else:
-        product.exist_negative_review = False
+        product.exist_negative_review = 'No negative review'
 
     # process html data got from website
     # process offer list
@@ -165,11 +183,12 @@ def parse_data(raw_info_list=None):
     else:
         product.exist_new_offer = 'Exist other Offer'
 
-    print (product.sku, product.asin, product.title, product.brand, product.price,
+    result = (product.sku, product.asin, product.status, product.brand, product.price,
            product.buy_box, product.availability,
            product.exist_negative_review, product.exist_new_offer)
 
-    return product
+    uk_Queue.put(result)
+    return result
 
 
 
