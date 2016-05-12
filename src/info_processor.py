@@ -21,7 +21,7 @@ def info_process(country=None):
         if country == 'de':
             filename = 'de_sku.xls'
         elif country == 'uk':
-            filename = 'uk_sku.xls'
+            filename = 'de_sku.xls'
         elif country == 'es':
             filename = 'de_sku.xls'
         elif country == 'fr':
@@ -90,7 +90,7 @@ def info_process(country=None):
             url_offer = None
 
         single_sku_info = [sku, asin, url_index, url_offer]
-        print single_sku_info
+        # print single_sku_info
         if sku != '' or asin != '':
             raw_info_list.append(single_sku_info)
     return raw_info_list
