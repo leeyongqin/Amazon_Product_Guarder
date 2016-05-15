@@ -8,6 +8,12 @@ import threading
 import time
 import multiprocessing
 
+uk_list = list()
+de_list = list()
+fr_list = list()
+es_list = list()
+it_list = list()
+
 
 def multi_threading():
     process_list = []
@@ -34,7 +40,16 @@ def schedule(country=None):
         item.join()
 
     for i in range(uk_Queue.qsize()):
-        print uk_Queue.get()
+        uk_temp = uk_Queue.get()
+        if uk_temp[1] not in ['JETech', 'Helect'] or uk_temp[3] not in ['JEDirect UK'] or\
+                        uk_temp[5] == 'Exist negative review' or uk_temp[6] == 'Exist other Offer':
+            uk_list.append(uk_temp)
+    if uk_list:
+        for item in uk_list:
+            print item
+    else:
+        print 'All Right'
+
     for i in range(de_Queue.qsize()):
         print de_Queue.get()
     for i in range(fr_Queue.qsize()):

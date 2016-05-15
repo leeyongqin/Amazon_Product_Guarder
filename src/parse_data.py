@@ -61,14 +61,17 @@ def parse_data(raw_info_list=None, country=None):
                     html_index = etree.HTML(requests_index.text)
                     html_offer = etree.HTML(requests_offer.text)
                     product.status = 'Found'
+                    break
 
-                else:
-                    print 'Can not find this product: %s' % product.sku
+                elif requests_index.status_code == 404:
+                    print '%s:%s' % (product.sku, requests_index.status_code)
                     product.status = 'Not Found'
-                    return None
-                break
-            except:
-                time.sleep(2)
+                    return False
+                print '%s:%s' % (product.sku, requests_index.status_code)
+                # time.sleep(1)
+            except Exception, e:
+                print "Exception:%s" %e
+                time.sleep(1)
                 pass
         break
 
